@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard</title>
+</head>
+<body>
+    <h1>Bem-vindo ao Mashup!</h1>
+
+    <form id="searchForm">
+        <input type="text" id="city" placeholder="Digite uma cidade" required>
+        <button type="submit">Buscar</button>
+    </form>
+
+    <div id="result"></div>
+    <h2>Histórico de Pesquisas</h2>
+    <div id="history">Carregando...</div>
+
+    <script>
+        // SUBMETER BUSCA
+        document.getElementById('searchForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const city = document.getElementById('city').value;
+
+            const res = await fetch(`/api/search?city=${encodeURIComponent(city)}`);
+            const data = await res.json();
+
+            if (res.ok) {
+                document.getElementById('result').innerHTML = `
+                    <h3>${data.city} (${data.country.name})</h3>
+                    <p>Temperatura: ${data.weather}°C</p>
+                    <p>Moeda: ${data.country.currency}</p>
+                    <h4>Notícias:</h4>
+                    <ul>${data.news.map(n => `<li><a href="${n.url}" target="_blank">${n.title}</a></li>`).join('')}</ul>
+                `;
+                loadHistory(); // Atualiza histórico
+            } else {
+                document.getElementById('result').innerText = data.error || 'Erro';
+            }
+        });
+
+        // CARREGAR HISTÓRICO
+        async function loadHistory() {
+            try {
+                const res = await fetch('/api/history');
+                const data = await res.json();
+                if (res.ok) {
+                    const list = data.map(h => `
+                        <li>${h.city} — ${h.country} — ${h.weather}°C — ${h.currency}</li>
+                    `).join('');
+                    document.getElementById('history').innerHTML = `<ul>${list}</ul>`;
+                } else {
+                    document.getElementById('history').innerText = 'Não autenticado';
+                }
+            } catch {
+                document.getElementById('history').innerText = 'Erro ao carregar histórico';
+            }
+        }
+
+        loadHistory();
+    </script>
+</body>
+</html>
