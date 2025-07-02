@@ -15,7 +15,7 @@ function ensureAuthenticated(req, res, next) {
 router.get('/search', ensureAuthenticated, async (req, res) => {
     const city = req.query.city;
     const OPENWEATHER_API_KEY = process.env.OPENWEATHER_API_KEY;
-    const NEWSAPI_KEY = process.env.NEWSAPI_KEY;
+    const GNEWS_API_KEY = process.env.GNEWSAPI_KEY;
 
     try {
         // OpenWeather
@@ -30,13 +30,8 @@ router.get('/search', ensureAuthenticated, async (req, res) => {
         const countryInfo = countryData[0];
 
         // NewsAPI
-        const newsRes = await fetch(`https://newsapi.org/v2/everything?q=${city}&language=pt&sortBy=publishedAt&pageSize=5&apiKey=${NEWSAPI_KEY}`);
-        if (!newsRes.ok) {
-            const errText = await newsRes.text();
-            throw new Error(`Erro NewsAPI: ${newsRes.status} - ${errText}`);
-        }
+        const newsRes = await fetch(`https://gnews.io/api/v4/search?q=${city}&lang=pt&max=5&token=${GNEWS_API_KEY}`);
         const newsData = await newsRes.json();
-
 
         // salvar no histórico
         await Search.create({
