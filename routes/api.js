@@ -29,9 +29,14 @@ router.get('/search', ensureAuthenticated, async (req, res) => {
         const countryData = await countryRes.json();
         const countryInfo = countryData[0];
 
-        // NewsAPI
-        const newsRes = await fetch(`https://gnews.io/api/v4/search?q=${city}&lang=pt&max=5&token=${GNEWS_API_KEY}`);
+        // GNews API (substitui NewsAPI)
+        const newsRes = await fetch(`https://gnews.io/api/v4/search?q=${city}&lang=pt&max=5&token=${process.env.GNEWS_API_KEY}`);
+        if (!newsRes.ok) {
+            const errText = await newsRes.text();
+            throw new Error(`Erro GNews: ${newsRes.status} - ${errText}`);
+        }
         const newsData = await newsRes.json();
+
 
         // salvar no histórico
         await Search.create({
