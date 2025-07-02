@@ -1,12 +1,13 @@
 const mongoose = require('mongoose');
 
-const searchSchema = new mongoose.Schema({
-    user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-    city: String,
-    weather: Number,
-    country: String,
-    currency: String,
-    createdAt: { type: Date, default: Date.now }
+const SearchSchema = new mongoose.Schema({
+  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  city: String,
+  weather: Number,
+  country: String,
+  currency: String
+}, {
+  timestamps: true // ← isso ativa o createdAt/updatedAt automaticamente
 });
 
-module.exports = mongoose.model('Search', searchSchema);
+module.exports = mongoose.model('Search', SearchSchema);

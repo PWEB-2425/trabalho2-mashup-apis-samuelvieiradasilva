@@ -31,7 +31,12 @@ router.get('/search', ensureAuthenticated, async (req, res) => {
 
         // NewsAPI
         const newsRes = await fetch(`https://newsapi.org/v2/everything?q=${city}&language=pt&sortBy=publishedAt&pageSize=5&apiKey=${NEWSAPI_KEY}`);
+        if (!newsRes.ok) {
+            const errText = await newsRes.text();
+            throw new Error(`Erro NewsAPI: ${newsRes.status} - ${errText}`);
+        }
         const newsData = await newsRes.json();
+
 
         // salvar no histórico
         await Search.create({
